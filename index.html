@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NeuroMirror — Emociones en Tiempo Real</title>
+  <meta name="description" content="NeuroMirror es un proyecto STEM+ que simula biofeedback con IA para visualizar emociones humanas en tiempo real." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js" defer></script>
+  <script src="./script.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="logo">🧠 NeuroMirror</div>
+      <nav class="nav">
+        <a href="#about">Acerca</a>
+        <a href="#demo">Demostración</a>
+        <a href="#ai">IA</a>
+        <a href="#results">Resultados</a>
+        <a id="openAppLink" class="btn ghost" href="#" title="Abrir en la aplicación">Abrir en la aplicación</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section class="hero" aria-label="Hero: NeuroMirror">
+      <canvas id="brainwaveCanvas" aria-hidden="true"></canvas>
+      <div class="hero-content container">
+        <h1>NeuroMirror — Emociones en Tiempo Real</h1>
+        <p class="subtitle">Usando IA para entender y visualizar las emociones humanas.</p>
+        <div class="cta-row">
+          <a class="btn primary" href="#demo">Probar la Demo</a>
+          <a class="btn ghost" href="#about">Saber más</a>
+          <a id="openAppHero" class="btn" href="#" title="Abrir o instalar la aplicación">Abrir en la aplicación</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- About -->
+    <section id="about" class="section container">
+      <h2>Acerca del proyecto</h2>
+      <p>
+        NeuroMirror es un proyecto STEM+ que simula cómo funciona el biofeedback, usando IA y datos emocionales
+        para promover la autoconciencia y la salud emocional. El sistema interpreta señales como ritmo cardíaco, conductancia de la piel (GSR)
+        y temperatura de la piel para inferir niveles de activación y estrés, y luego ofrece recomendaciones para relajarse.
+      </p>
+      <div class="feature-grid">
+        <div class="feature">
+          <div class="feature-icon">💓</div>
+          <h3>Simulación de biofeedback</h3>
+          <p>Simulamos sensores para mostrar cómo la fisiología cambia con las emociones en tiempo real.</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">🤖</div>
+          <h3>Visión de IA</h3>
+          <p>Lógica de ML simple mapea señales a estados y sugiere respiración o acciones de relajación.</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">📈</div>
+          <h3>Seguimiento del progreso</h3>
+          <p>Visualiza la mejoría a medida que el estrés disminuye y la calma aumenta tras sesiones guiadas.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Demo -->
+    <section id="demo" class="section alt">
+      <div class="container">
+        <h2>Demostración interactiva</h2>
+        <p class="section-lead">Métricas simuladas en vivo se actualizan cada segundo. Los colores indican el estado: <span class="badge green">tranquilo</span> <span class="badge yellow">elevado</span> <span class="badge red">estresado</span>.</p>
+
+        <div class="dashboard">
+          <div class="card metric" role="group" aria-label="Ritmo cardíaco">
+            <div class="card-header">
+              <span>Ritmo cardíaco</span>
+              <span class="badge" id="hrBadge">--</span>
+            </div>
+            <div class="card-body">
+              <div class="metric-value"><span id="hrValue">--</span> <span class="unit">bpm</span></div>
+              <div class="meter">
+                <div id="hrBar" class="bar"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card metric" role="group" aria-label="GSR">
+            <div class="card-header">
+              <span>GSR (Respuesta de la piel)</span>
+              <span class="badge" id="gsrBadge">--</span>
+            </div>
+            <div class="card-body">
+              <div class="metric-value"><span id="gsrValue">--</span> <span class="unit">µS</span></div>
+              <div class="meter">
+                <div id="gsrBar" class="bar"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card metric" role="group" aria-label="Temperatura">
+            <div class="card-header">
+              <span>Temperatura</span>
+              <span class="badge" id="tempBadge">--</span>
+            </div>
+            <div class="card-body">
+              <div class="metric-value"><span id="tempValue">--</span> <span class="unit">°C</span></div>
+              <div class="meter">
+                <div id="tempBar" class="bar"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" role="group" aria-label="Camera Emotion Prototipo">
+            <div class="card-header">
+              <span>Camera Emotion Prototipo</span>
+              <span class="badge" id="emotionBadge">camara apagada</span>
+            </div>
+            <div class="card-body">
+              <video id="camVideo" autoplay playsinline muted style="width:100%;border-radius:10px;background:#000;max-height:260px"></video>
+              <div class="controls">
+                <button class="btn" id="startCamBtn">Iniciar cámara</button>
+                <button class="btn" id="stopCamBtn" disabled>Detener cámara</button>
+              </div>
+              <div id="emotionTip" class="tip"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="controls">
+          <button class="btn primary" id="startBtn" aria-pressed="false">Iniciar</button>
+          <button class="btn" id="stopBtn" disabled>Detener</button>
+          <button class="btn ghost" id="calmTipBtn" title="Mostrar una recomendación para calmarse">Obtener consejo calmante</button>
+        </div>
+        <div id="tipArea" class="tip" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <!-- AI Section -->
+    <section id="ai" class="section container">
+      <h2>Cómo funciona la IA</h2>
+      <div class="ai-grid">
+        <div class="ai-card">
+          <h3>Procesamiento de señales</h3>
+          <p>
+            El sistema normaliza ritmo cardíaco, GSR y temperatura, luego calcula un índice de activación.
+            Un modelo sencillo basado en reglas (como un pequeño árbol de decisión) mapea esas señales a estados emocionales.
+          </p>
+          <ul class="list">
+            <li><strong>Ritmo cardíaco</strong>: valores más altos suelen indicar mayor activación.</li>
+            <li><strong>GSR</strong>: la conductancia aumenta con la sudoración durante el estrés.</li>
+            <li><strong>Temperatura</strong>: puede bajar ligeramente en las extremidades durante el estrés.</li>
+          </ul>
+        </div>
+        <div class="ai-card">
+          <h3>Recomendaciones</h3>
+          <p>
+            Según el estado, NeuroMirror sugiere acciones simples para reducir la activación y aumentar la calma.
+          </p>
+          <ul class="list">
+            <li><strong>Respiración</strong>: respiración abdominal a un ritmo de 4-6.</li>
+            <li><strong>Relajación</strong>: relajación muscular progresiva.</li>
+            <li><strong>Anclaje</strong>: chequeo sensorial 5-4-3-2-1.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Results -->
+    <section id="results" class="section alt">
+      <div class="container">
+        <div class="results-header">
+          <h2>Resultados: La calma mejora tras una sesión</h2>
+          <button class="btn" id="runSessionBtn">Ejecutar simulación de 60 s</button>
+        </div>
+        <p class="section-lead">El gráfico simula una sesión donde el estrés disminuye y la calma aumenta con el tiempo.</p>
+        <div class="card chart-card">
+          <canvas id="resultsChart" height="120"></canvas>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <span>© 2025 NeuroMirror — STEM+ Science Fair Infomatrix</span>
+    </div>
+  </footer>
+</body>
+</html>
