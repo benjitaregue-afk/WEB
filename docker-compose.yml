@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  # Nginx para servir el sitio con HTTPS
+  web:
+    image: nginx:alpine
+    ports:
+      - "443:443"  # HTTPS
+      - "80:80"    # HTTP (redirige a HTTPS)
+    volumes:
+      - ./:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    environment:
+      - NGINX_HOST=localhost
+    networks:
+      - web
+    restart: unless-stopped
+
+networks:
+  web:
+    driver: bridge

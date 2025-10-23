@@ -22,7 +22,6 @@
         <a href="#demo">Demostración</a>
         <a href="#ai">IA</a>
         <a href="#results">Resultados</a>
-        <a id="openAppLink" class="btn ghost" href="#" title="Abrir en la aplicación">Abrir en la aplicación</a>
       </nav>
     </div>
   </header>
@@ -37,7 +36,6 @@
         <div class="cta-row">
           <a class="btn primary" href="#demo">Probar la Demo</a>
           <a class="btn ghost" href="#about">Saber más</a>
-          <a id="openAppHero" class="btn" href="#" title="Abrir o instalar la aplicación">Abrir en la aplicación</a>
         </div>
       </div>
     </section>
@@ -125,6 +123,7 @@
               <div class="controls">
                 <button class="btn" id="startCamBtn">Iniciar cámara</button>
                 <button class="btn" id="stopCamBtn" disabled>Detener cámara</button>
+                <button class="btn ghost" id="testCamBtn" title="Probar acceso a la cámara">Probar cámara</button>
               </div>
               <div id="emotionTip" class="tip"></div>
             </div>
@@ -137,6 +136,8 @@
           <button class="btn ghost" id="calmTipBtn" title="Mostrar una recomendación para calmarse">Obtener consejo calmante</button>
         </div>
         <div id="tipArea" class="tip" aria-live="polite"></div>
+        <!-- NeuroMirror manual module mount point -->
+        <div id="neuromirror-root" style="margin-top:18px"></div>
       </div>
     </section>
 
@@ -191,4 +192,10 @@
     </div>
   </footer>
 </body>
+  <script type="module">
+    import { attachNeuroMirror } from './neuromirror.js';
+    document.addEventListener('DOMContentLoaded', ()=>{
+      attachNeuroMirror('#neuromirror-root');
+    });
+  </script>
 </html>

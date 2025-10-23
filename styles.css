@@ -1,18 +1,19 @@
 /* Design tokens */
 :root{
-  --bg: #0b1020;
-  --panel: #111731;
-  --panel-2: #0f1530;
-  --text: #eaf0ff;
-  --muted: #aab3d0;
-  --primary: #7c5cff;
-  --primary-2: #00e0ff;
+  /* Calmer, more vivid palette tuned for emotional UI */
+  --bg: #071826; /* deep teal-blue */
+  --panel: #062a36; /* slightly lighter panel */
+  --panel-2: #073445;
+  --text: #eaf6f5; /* soft off-white */
+  --muted: #9ec7c4; /* muted teal */
+  --primary: #4fc3d9; /* soothing teal */
+  --primary-2: #7c5cff; /* soft purple accent retained for contrast */
   --green: #2ecc71;
   --yellow: #f1c40f;
   --red: #e74c3c;
-  --card: rgba(255,255,255,0.05);
-  --border: rgba(255,255,255,0.08);
-  --shadow: 0 10px 30px rgba(0,0,0,.35);
+  --card: rgba(255,255,255,0.04);
+  --border: rgba(255,255,255,0.06);
+  --shadow: 0 10px 30px rgba(2,18,28,.45);
 }
 
 *{ box-sizing: border-box }

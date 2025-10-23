@@ -170,22 +170,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
   el('calmTipBtn')?.addEventListener('click', showTip);
   el('runSessionBtn')?.addEventListener('click', runSession);
   initChart();
-  // Default HTTPS install/open target; can be overridden via ?app=
-  const defaultHttps = 'https://windsurf.ai';
-  const appLinks = [document.getElementById('openAppLink'), document.getElementById('openAppHero')].filter(Boolean);
-  appLinks.forEach(a=>{ a.href = defaultHttps; });
-
-  // Deep link support (?app=https://... or custom protocol [&autoredirect=1])
-  try{
-    const params = new URLSearchParams(window.location.search);
-    const appUrl = params.get('app');
-    const auto = params.get('autoredirect') === '1';
-    if(appUrl){
-      appLinks.forEach(a=>{ a.href = appUrl; });
-      if(auto){ setTimeout(()=>{ window.location.href = appUrl; }, 600); }
-    }
-  }catch(e){ /* ignore */ }
-
   // Camera emotion prototype
   setupCameraEmotionPrototype();
 });
@@ -200,6 +184,33 @@ async function setupCameraEmotionPrototype(){
   const badge = el('emotionBadge');
   const tip = el('emotionTip');
   if(!startBtn || !stopBtn || !video || !badge) return;
+  // If page is not secure and not localhost, camera access will be blocked by browsers.
+  const insecureOrigin = (!window.isSecureContext && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1' && location.protocol !== 'file:');
+  if(insecureOrigin){
+    // Provide clearer guidance and helpers instead of failing silently
+    badge.textContent = 'insecure';
+    tip.innerHTML = `Acceso a la cámara bloqueado: abre la página en <strong>localhost</strong> o usa HTTPS.<br>
+      - Ejecuta el servidor local (p. ej. <code>start-server.ps1</code>) y abre <code>http://localhost:8080</code> en este equipo.<br>
+      - O usa un túnel HTTPS (ngrok) para exponer la URL segura.<br>
+      <button id="nm-copy-local" class="btn">Copiar localhost</button>`;
+    startBtn.disabled = true;
+    // wire copy button (may not be present in all browsers)
+    setTimeout(()=>{
+      const copy = document.getElementById('nm-copy-local');
+      if(copy){
+        copy.addEventListener('click', async ()=>{
+          try{
+            await navigator.clipboard.writeText('http://localhost:8080');
+            copy.textContent = 'Copiado';
+            setTimeout(()=>copy.textContent = 'Copiar localhost', 2000);
+          }catch(e){
+            copy.textContent = 'No disponible';
+          }
+        });
+      }
+    }, 50);
+    return;
+  }
 
   const MODEL_URL = 'https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js/models';
   try{
@@ -223,9 +234,49 @@ async function setupCameraEmotionPrototype(){
       runDetectionLoop(video, badge, tip);
     }catch(err){
       badge.textContent = 'camera blocked';
-      tip.textContent = 'Allow camera permissions and use HTTPS or localhost.';
+      // Provide more specific guidance depending on error
+      if(err && err.name === 'NotAllowedError'){
+        tip.textContent = 'Permiso denegado. Revisa los permisos del navegador y vuelve a cargar la página.';
+      }else if(err && err.name === 'NotFoundError'){
+        tip.textContent = 'Cámara no encontrada. Asegúrate de que una cámara esté conectada y no esté siendo usada por otra aplicación.';
+      }else{
+        tip.textContent = 'No se pudo acceder a la cámara. Usa HTTPS o localhost; revisa permisos y dispositivos.';
+      }
+      console.warn('getUserMedia error:', err);
     }
   });
+
+  // Diagnostic: quick probe and device listing
+  const testBtn = el('testCamBtn');
+  if(testBtn){
+    testBtn.addEventListener('click', async ()=>{
+      try{
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const cams = devices.filter(d=>d.kind==='videoinput');
+        if(cams.length===0){
+          tip.textContent = 'No se detectaron cámaras. Conecta una cámara y actualiza.';
+          return;
+        }
+        tip.textContent = `Cámaras detectadas: ${cams.map(c=>c.label||c.deviceId).join(', ')}`;
+        // Try a short permission probe
+        try{
+          const s = await navigator.mediaDevices.getUserMedia({ video:true });
+          s.getTracks().forEach(t=>t.stop());
+          tip.textContent += ' — Permiso concedido (prueba OK). Ahora pulsa Iniciar cámara.';
+        }catch(probeErr){
+          if(probeErr && probeErr.name === 'NotAllowedError'){
+            tip.textContent += ' — Permiso denegado. Revisa los permisos del navegador.';
+          }else{
+            tip.textContent += ' — No se pudo acceder (ver consola para detalles).';
+            console.warn('camera probe error', probeErr);
+          }
+        }
+      }catch(err){
+        tip.textContent = 'Error al leer dispositivos: revisa permisos del navegador.';
+        console.warn(err);
+      }
+    });
+  }
 
   stopBtn.addEventListener('click', ()=>{
     if(detectLoopId) cancelAnimationFrame(detectLoopId);
